@@ -20,22 +20,12 @@ class User(Base):
     tickets = relationship("Ticket", back_populates="user")
 
 
-class Airplane(Base):
-    __tablename__ = "airplanes"
-
-    id= Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name= Column(String, unique=False, index=True)
-    number_of_sit= Column(Integer)
-
-    flights = relationship("Flight", back_populates="airplane")
-
 class Airport(Base):
     __tablename__ = "airports"
 
     id= Column(Integer, primary_key=True, index=True, autoincrement=True)
     name= Column(String, unique=False, index=True)
     address= Column(String)
-    rate= Column(Float)
 
 class Company(Base):
     __tablename__ = "companies"
@@ -43,14 +33,27 @@ class Company(Base):
     id= Column(Integer, primary_key=True, index=True, autoincrement=True)
     name= Column(String)
 
+    airplanes = relationship("Airplane", back_populates="company")
+
+class Airplane(Base):
+    __tablename__ = "airplanes"
+
+    id= Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id= Column(Integer, ForeignKey(Company.id))
+    name= Column(String, unique=False, index=True)
+    number_of_sit= Column(Integer)
+
+    flights = relationship("Flight", back_populates="airplane")
+    company = relationship("Company", back_populates="airplanes")
+
 class Flight(Base):
     __tablename__ = "flights"
 
     id= Column(Integer, primary_key=True, index=True, autoincrement=True)
-    origin= Column(String)
-    destination= Column(String)
-    takeoff_date= Column(DateTime(timezone=True), unique=False, index=True)
-    landing_date= Column(DateTime(timezone=True), unique=False, index=True)
+    origin_airport_id= Column(Integer)
+    destination_airport_id= Column(Integer)
+    takeoff_date= Column(String, unique=False)
+    landing_date= Column(String, unique=False)
     airplane_id= Column(Integer, ForeignKey(Airplane.id))
     class_type= Column(String)
 
@@ -67,7 +70,7 @@ class Ticket(Base):
     sitNumber= Column(Integer)
     type= Column(String)
 
-    flight = relationship("Flight", back_populates="flights")
+    flight = relationship("Flight", back_populates="tickets")
     user = relationship("User", back_populates="tickets")
 
 

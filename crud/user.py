@@ -39,7 +39,20 @@ async def getUser(id: int, db: Session = Depends(get_db)):
     else:
         return query
         
-        
+@router.put("/update/{id}", response_model=UserSchema, status_code=status.HTTP_200_OK)
+async def updateUser(data: UserSchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(UserModel).filter(UserModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"User not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"name": data.name, "surname": data.surname,
+                       "age": data.age, "phone_number": data.phone_number,
+                        "username": data.username, "password": data.password, 
+                         "email": data.email, "gender": data.gender, "address": data.address})
+        db.commit()
+        msg = f"User updated"
+        return {"message": msg, **data.dict()}
+    
 @router.delete("/delete/{id}", response_model=UserSchema, status_code=status.HTTP_200_OK)
 async def deleteCompany(id: int, db: Session = Depends(get_db)):
     query = db.query(UserModel).filter(UserModel.id == id).first()

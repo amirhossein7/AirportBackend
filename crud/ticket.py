@@ -36,7 +36,19 @@ async def getTicket(id: int, db: Session = Depends(get_db)):
         return JSONResponse(content=f"Ticket not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
     else:
         return query
-    
+
+@router.put("/update/{id}", response_model=TicketSchema, status_code=status.HTTP_200_OK)
+async def updateTicket(data: TicketSchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(TicketModel).filter(TicketModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"Ticket not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"flight_id": data.flight_id, "user_id": data.user_id,
+                       "price": data.price, "sitNumber": data.sitNumber,
+                        "type": data.type })
+        db.commit()
+        msg = f"Ticket updated"
+        return {"message": msg, **data.dict()}
     
 @router.delete("/delete/{id}", response_model=TicketSchema, status_code=status.HTTP_200_OK)
 async def deleteTicket(id: int, db: Session = Depends(get_db)):

@@ -28,6 +28,17 @@ async def getAllAirplane(db: Session = Depends(get_db)):
     else:
         return query
     
+@router.put("/update/{id}", response_model=AirplaneSchema, status_code=status.HTTP_200_OK)
+async def updateAirplane(data: AirplaneSchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(AirplaneModel).filter(AirplaneModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"Airplane not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"name": data.name, "number_of_sit": data.number_of_sit})
+        db.commit()
+        msg = f"Apirplane updated"
+        return {"message": msg, **data.dict()}
+            
 
 @router.get("/{id}", response_model=AirplaneSchema, status_code=status.HTTP_200_OK)
 async def getAirplane(id: int, db: Session = Depends(get_db)):

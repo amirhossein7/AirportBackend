@@ -37,6 +37,16 @@ async def getCompany(id: int, db: Session = Depends(get_db)):
     else:
         return query
     
+@router.put("/update/{id}", response_model=CompanySchema, status_code=status.HTTP_200_OK)
+async def updateCompany(data: CompanySchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(CompanyModel).filter(CompanyModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"Company not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"company_id": data.com})
+        db.commit()
+        msg = f"Company updated"
+        return {"message": msg, **data.dict()}
     
 @router.delete("/delete/{id}", response_model=CompanySchema, status_code=status.HTTP_200_OK)
 async def deleteCompany(id: int, db: Session = Depends(get_db)):
@@ -47,3 +57,4 @@ async def deleteCompany(id: int, db: Session = Depends(get_db)):
         db.delete(query)
         db.commit()
         return JSONResponse(content=f"Company deleted with id: {id}", status_code=status.HTTP_200_OK)
+    

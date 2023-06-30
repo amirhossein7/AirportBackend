@@ -9,7 +9,6 @@ class Airport(CustomBaseModel):
     id: Optional[int]
     name: str
     address: str
-    rate: float
 
 class Company(CustomBaseModel):
     id: Optional[int]
@@ -17,17 +16,17 @@ class Company(CustomBaseModel):
 
 class Flight(CustomBaseModel):
     id: Optional[int]
-    origin: str
-    destination: str
+    airplane_id: int
+    origin_airport_id: int
+    destination_airport_id: int
     takeoff_date: str
     landing_date: str
-    airplane_id: str
     class_type: str
 
 class Ticket(CustomBaseModel):
     id: Optional[int]
-    flight_id: str
-    user_id: str
+    flight_id: int
+    user_id: int
     price: float
     sitNumber: int
     type: str

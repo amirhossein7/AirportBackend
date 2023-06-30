@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.post("/create", response_model=FlightSchema)
 async def createFlight(data: FlightSchema, db: Session = Depends(get_db)):
-    query = FlightModel(origin=data.origin, destination=data.destination, takeoff_date=data.takeoff_date,
+    query = FlightModel(origin_airport_id=data.origin_airport_id, destination_airport_id=data.destination_airport_id, takeoff_date=data.takeoff_date,
                          landing_date=data.landing_date, airplane_id=data.airplane_id, class_type=data.class_type)
     db.add(query)
     db.commit()
@@ -38,6 +38,20 @@ async def getFlight(id: int, db: Session = Depends(get_db)):
     else:
         return query
     
+    
+@router.put("/update/{id}", response_model=FlightSchema, status_code=status.HTTP_200_OK)
+async def updateFlight(data: FlightSchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(FlightModel).filter(FlightModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"Flight not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"company_id": data.company_id, "airplane_id": data.airplane_id,
+                       "origin": data.origin, "destination": data.destination,
+                        "takeoff_date": data.takeoff_date, "landing_date": data.landing_date,
+                          "class_type": data.class_type })
+        db.commit()
+        msg = f"Flight updated"
+        return {"message": msg, **data.dict()}
     
 @router.delete("/delete/{id}", response_model=FlightSchema, status_code=status.HTTP_200_OK)
 async def deleteFlight(id: int, db: Session = Depends(get_db)):

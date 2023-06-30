@@ -37,6 +37,16 @@ async def getAirport(id: int, db: Session = Depends(get_db)):
     else:
         return query
     
+@router.put("/update/{id}", response_model=AirportSchema, status_code=status.HTTP_200_OK)
+async def updateAirport(data: AirportSchema, id: int, db: Session = Depends(get_db)):
+    query = db.query(AirportModel).filter(AirportModel.id == id)
+    if query is None:
+        return JSONResponse(content=f"Airport not found wit id: {id}", status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        query.update({"name": data.name, "address": data.address})
+        db.commit()
+        msg = f"Airport updated"
+        return {"message": msg, **data.dict()}
     
 @router.delete("/delete/{id}", response_model=AirportSchema, status_code=status.HTTP_200_OK)
 async def deleteAirport(id: int, db: Session = Depends(get_db)):
